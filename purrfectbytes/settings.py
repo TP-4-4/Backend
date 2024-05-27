@@ -41,6 +41,10 @@ INSTALLED_APPS = [
     'cart.apps.CartConfig',
     'users.apps.UsersConfig',
     'orders.apps.OrdersConfig',
+    'rest_framework_swagger',
+    'rest_framework',
+    'drf-spectacular',
+    'drfecommerce.product',
 ]
 
 MIDDLEWARE = [
