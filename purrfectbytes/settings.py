@@ -39,12 +39,10 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'shop.apps.ShopConfig',
     'cart.apps.CartConfig',
-    'users.apps.UsersConfig',
+    'users',
     'orders.apps.OrdersConfig',
-    'rest_framework_swagger',
     'rest_framework',
-    'drf-spectacular',
-    'drfecommerce.product',
+    'drf_yasg',
 ]
 
 MIDDLEWARE = [
