@@ -13,6 +13,7 @@ class Category(models.Model):
         ]
         verbose_name = 'category'
         verbose_name_plural = 'categories'
+        db_table = "category"
 
     def __str__(self):
         return self.name
@@ -40,6 +41,7 @@ class Product(models.Model):
             models.Index(fields=['name']),
             models.Index(fields=['-created']),
         ]
+        db_table = "product"
 
     def __str__(self):
         return self.name
