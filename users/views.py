@@ -3,8 +3,9 @@ from rest_framework import status
 from rest_framework.generics import CreateAPIView
 from rest_framework.response import Response
 
+from .currentUser import CurrentUser
 from .models import User
-from .serializers import UserSignUpSerializer, UserLoginSerializer, UserSerializer
+from .serializers import UserSignUpSerializer, UserLoginSerializer, UserSerializer, UserAddressSerializer
 
 
 class RegistrationView(CreateAPIView):
@@ -14,25 +15,53 @@ class RegistrationView(CreateAPIView):
         if serializer.is_valid():
             email = serializer.validated_data.get('email')
             password = serializer.validated_data.get('password')
+            first_name = serializer.validated_data.get('first_name')
+            last_name = serializer.validated_data.get('last_name')
+            address = serializer.validated_data.get('address')
 
             existing_user = User.objects.filter(email=email).exists()
             if existing_user:
                 return Response({'answer': 'Такой пользователь уже существует'},
                                 status=status.HTTP_400_BAD_REQUEST)
 
-            user = User.objects.create(email=email, password=password)
+            user = User.objects.create(email=email, password=password, first_name=first_name, last_name=last_name, address=address)
 
             return Response(UserSerializer(user).data, status=status.HTTP_200_OK, headers={"charset": "utf-8"})
 
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
+class GetUserView(CreateAPIView):
+    def get(self, request):
+        user = CurrentUser.get_current_user(request)
+        if user:
+            return Response(UserSerializer(user).data, status=status.HTTP_200_OK)
+        return Response({'answer': 'пользователь не найден'}, status=status.HTTP_401_UNAUTHORIZED, headers={"charset": "utf-8"})
+
+
+class ChangeUserAddressView(CreateAPIView):
+    def post(self, request):
+        serializer = UserAddressSerializer(data=request.data)
+        user = CurrentUser.get_current_user(request)
+        if not user:
+            return Response({'answer': 'пользователь не залогинен'}, status=status.HTTP_401_UNAUTHORIZED, headers={"charset": "utf-8"})
+        if serializer.is_valid():
+            address = serializer.validated_data.get('address')
+            user.address = address
+            user.save()
+            return Response(UserSerializer(user).data, status=status.HTTP_200_OK)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
 class LoginView(CreateAPIView):
     def post(self, request):
         serializer = UserLoginSerializer(data=request.data)
-        email = serializer.validated_data.get('email')
-        password = serializer.validated_data.get('password')
-        for user in User.objects.all():
-            if (password == user.password) and (email == user.email):
-                return Response(UserSerializer(user).data, status=status.HTTP_200_OK)
-        return Response({'answer': 'почта/пароль неправильный'}, status=status.HTTP_401_UNAUTHORIZED, headers={"charset": "utf-8"})
+        if serializer.is_valid():
+            email = serializer.validated_data.get('email')
+            password = serializer.validated_data.get('password')
+            for user in User.objects.all():
+                if (password == user.password) and (email == user.email):
+                    CurrentUser.set_current_user(request, user)
+                    return Response(UserSerializer(user).data, status=status.HTTP_200_OK)
+            return Response({'answer': 'почта/пароль неправильный'}, status=status.HTTP_401_UNAUTHORIZED, headers={"charset": "utf-8"})
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)

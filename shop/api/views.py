@@ -22,9 +22,6 @@ class CategoryView(generics.ListAPIView):
 
 
 class CategoryDetailView(APIView):
-    queryset = Category.objects.all()
-    serializer_class = CategorySerializer
-
     def get(self, request, pk):
         products = Product.objects.all()
         products_out = []

@@ -41,8 +41,11 @@ INSTALLED_APPS = [
     'cart.apps.CartConfig',
     'users',
     'orders.apps.OrdersConfig',
+    'map.apps.MapConfig',
+    'couriers.apps.CouriersConfig',
     'rest_framework',
     'drf_yasg',
+    "corsheaders",
 ]
 
 MIDDLEWARE = [
@@ -53,6 +56,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    "corsheaders.middleware.CorsMiddleware",
 ]
 
 ROOT_URLCONF = 'purrfectbytes.urls'
@@ -80,10 +84,28 @@ WSGI_APPLICATION = 'purrfectbytes.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/4.1/ref/settings/#databases
 
+#DATABASES = {
+#    'default': {
+#        'ENGINE': 'django.db.backends.sqlite3',
+#        'NAME': BASE_DIR / 'db.sqlite3',
+#    }
+#}
+
+
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': "purrfectbitesdb",
+        'USER': "k8lobova",
+        'PASSWORD': "k8lobova",
+        'HOST': "rc1d-k0uie7z5br471ion.mdb.yandexcloud.net",
+        'PORT': "6432",
+        'sslmode': 'verify-full',
+        'target_session_attrs': 'read-write'
+        # 'OPTIONS': {
+        #     'sslmode': 'verify-full',
+        #     'target_session_attrs': 'read-write',
+        # }
     }
 }
 
@@ -124,6 +146,13 @@ USE_TZ = True
 
 STATIC_URL = 'static/'
 
+#
+# CORS_ALLOWED_ORIGINS = [
+#     "http://localhost:3000/",
+# ]
+
+#какой-то прикол со звездочкой
+
 # Default primary key field type
 # https://docs.djangoproject.com/en/4.1/ref/settings/#default-auto-field
 
@@ -133,6 +162,8 @@ MEDIA_URL = 'media/'
 MEDIA_ROOT = BASE_DIR / 'media'
 
 CART_SESSION_ID = 'cart'
+
+USER_SESSION_ID = 'user'
 
 CRISPY_TEMPLATE_PACK = 'bootstrap4'
 
