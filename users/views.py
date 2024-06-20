@@ -90,7 +90,7 @@ class LoginView(CreateAPIView):
             for user in User.objects.all():
                 if (password == user.password) and (email == user.email):
                     response = Response(UserSerializer(user).data, status=status.HTTP_200_OK)
-                    CurrentUser.set_current_user(response, user)
+                    CurrentUser.set_current_user(request, user)
                     return response
             return Response({'answer': 'почта/пароль неправильный'}, status=status.HTTP_401_UNAUTHORIZED, headers={"charset": "utf-8"})
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
