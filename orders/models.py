@@ -8,10 +8,10 @@ from django.utils.translation import gettext_lazy as _
 
 
 class StatusEnum(models.TextChoices):
-    NOT_ACCEPTED = 'not_accepted', _('Not Accepted')
-    ACCEPTED = 'accepted', _('Accepted')
-    CANCELED = 'canceled', _('Canceled')
-    COMPLETED = 'completed', _('Completed')
+    NOT_ACCEPTED = 'NOT_ACCEPTED', _('NOT ACCEPTED')
+    ACCEPTED = 'ACCEPTED', _('ACCEPTED')
+    CANCELED = 'CANCELED', _('CANCELED')
+    COMPLETED = 'COMPLETED', _('COMPLETED')
 
 
 class Order(models.Model):
