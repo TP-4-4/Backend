@@ -7,16 +7,16 @@ from users.serializers import UserSerializer
 class CurrentUser:
     @staticmethod
     def set_current_user(request, user):
-        print("email found")
-        print(user.email)
+        # print("email found")
+        # print(user.email)
         request.session[settings.USER_SESSION_ID] = user.email
 
     @staticmethod
     def get_current_user(request):
-        email = request.session[settings.USER_SESSION_ID]
-        print("lflf")
-        print(email)
+        email = request.session.get(settings.USER_SESSION_ID)
+        # print("lflf")
+        # print(email)
         for user in User.objects.all():
             if email == user.email:
-                print("нашли")
+                #print("нашли")
                 return user

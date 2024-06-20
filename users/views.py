@@ -39,9 +39,16 @@ def invalid_address(address):
     return loc is None
 
 
-class UserDetailView(generics.RetrieveAPIView):
-    queryset = User.objects.all()
-    serializer_class = UserSerializer
+# class UserDetailView(generics.RetrieveAPIView):
+#     queryset = User.objects.all()
+#     serializer_class = UserSerializer
+
+class GetUserView(CreateAPIView):
+    def get(self, request):
+        user = CurrentUser.get_current_user(request)
+        if user:
+            return Response(UserSerializer(user).data, status=status.HTTP_200_OK)
+        return Response({'answer': 'пользователь не найден'}, status=status.HTTP_401_UNAUTHORIZED, headers={"charset": "utf-8"})
 
 
 # class GetUserView(CreateAPIView):
