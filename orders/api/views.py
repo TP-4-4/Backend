@@ -35,7 +35,7 @@ class UserOrdersView(APIView):
     def get(self, request):
         orders = Order.objects.all()
         current_user = CurrentUser.get_current_user(request)
-        if not current_user:
+        if current_user is None:
             return Response({'answer': 'пользователь не залогинен'}, status=status.HTTP_401_UNAUTHORIZED, headers={"charset": "utf-8"})
         orders_out = []
         for order in orders:

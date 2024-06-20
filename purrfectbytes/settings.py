@@ -168,7 +168,7 @@ MEDIA_ROOT = BASE_DIR / 'media'
 
 CART_SESSION_ID = 'cart'
 
-USER_SESSION_ID = 'user'
+USER_SESSION_ID = 'current_user'
 
 CRISPY_TEMPLATE_PACK = 'bootstrap4'
 
