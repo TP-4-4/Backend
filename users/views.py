@@ -1,7 +1,8 @@
 from django.http import JsonResponse
-from rest_framework import status
+from rest_framework import status, generics
 from rest_framework.generics import CreateAPIView
 from rest_framework.response import Response
+from geopy.geocoders import Nominatim
 
 from .currentUser import CurrentUser
 from .models import User
@@ -18,7 +19,8 @@ class RegistrationView(CreateAPIView):
             first_name = serializer.validated_data.get('first_name')
             last_name = serializer.validated_data.get('last_name')
             address = serializer.validated_data.get('address')
-
+            if invalid_address(address):
+                return Response({'answer': 'адрес пользователя не валидный'}, status=status.HTTP_400_BAD_REQUEST, headers={"charset": "utf-8"})
             existing_user = User.objects.filter(email=email).exists()
             if existing_user:
                 return Response({'answer': 'Такой пользователь уже существует'},
@@ -31,12 +33,31 @@ class RegistrationView(CreateAPIView):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
-class GetUserView(CreateAPIView):
-    def get(self, request):
-        user = CurrentUser.get_current_user(request)
-        if user:
-            return Response(UserSerializer(user).data, status=status.HTTP_200_OK)
-        return Response({'answer': 'пользователь не найден'}, status=status.HTTP_401_UNAUTHORIZED, headers={"charset": "utf-8"})
+def invalid_address(address):
+    geolocator = Nominatim(user_agent="geoapiExercises")
+    loc = geolocator.geocode(address)
+    return loc is None
+
+
+class UserDetailView(generics.RetrieveAPIView):
+    queryset = User.objects.all()
+    serializer_class = UserSerializer
+
+
+# class GetUserView(CreateAPIView):
+#     def get(self, request, pk):
+#         users = User.objects.all()
+#         users_out = []
+#         for user in products:
+#             if product.category.id == int(pk):
+#                 products_out.append(product)
+#         serializer = ProductSerializer(products_out, many=True)
+#         return Response(serializer.data)
+#     def get(self, request):
+#         user = CurrentUser.get_current_user(request)
+#         if user:
+#             return Response(UserSerializer(user).data, status=status.HTTP_200_OK)
+#         return Response({'answer': 'пользователь не найден'}, status=status.HTTP_401_UNAUTHORIZED, headers={"charset": "utf-8"})
 
 
 class ChangeUserAddressView(CreateAPIView):

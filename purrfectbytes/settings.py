@@ -95,10 +95,10 @@ WSGI_APPLICATION = 'purrfectbytes.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
-        'NAME': "purrfectbitesdb",
-        'USER': "k8lobova",
-        'PASSWORD': "k8lobova",
-        'HOST': "rc1d-k0uie7z5br471ion.mdb.yandexcloud.net",
+        'NAME': "purfectbitesdb",
+        'USER': "user1",
+        'PASSWORD': "12345678",
+        'HOST': "rc1a-cnt8k8ut2psb08qm.mdb.yandexcloud.net",
         'PORT': "6432",
         'sslmode': 'verify-full',
         'target_session_attrs': 'read-write'
@@ -108,6 +108,11 @@ DATABASES = {
         # }
     }
 }
+
+
+
+#host= rc1a-cnt8k8ut2psb08qm.mdb.yandexcloud.net
+#      rc1b-91b6iu26xhrhuegb.mdb.yandexcloud.net
 
 
 # Password validation
