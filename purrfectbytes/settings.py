@@ -95,10 +95,10 @@ WSGI_APPLICATION = 'purrfectbytes.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
-        'NAME': "purfectbitesdb",
+        'NAME': "purrfectbitesdb",
         'USER': "user1",
         'PASSWORD': "12345678",
-        'HOST': "rc1a-cnt8k8ut2psb08qm.mdb.yandexcloud.net",
+        'HOST': "rc1d-aeawj2mkw8jyg8rs.mdb.yandexcloud.net",
         'PORT': "6432",
         'sslmode': 'verify-full',
         'target_session_attrs': 'read-write'

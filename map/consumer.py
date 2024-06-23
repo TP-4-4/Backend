@@ -20,7 +20,7 @@ coord_queue = queue.Queue()
 def get_coord_from_kafka():
     consumer = KafkaConsumer(
         'coordinates',
-        bootstrap_servers=['rc1a-1v00ge0ve2fc0v3l.mdb.yandexcloud.net:9091','rc1a-2v4ibf0ob81q9ia8.mdb.yandexcloud.net:9091','rc1a-qkq6q3nadesff69e.mdb.yandexcloud.net:9091','rc1b-899943l1rfaf2ghc.mdb.yandexcloud.net:9091','rc1b-brqnu1mp5aiduuaq.mdb.yandexcloud.net:9091','rc1b-ubqhqs0m5rpjisuu.mdb.yandexcloud.net:9091','rc1d-j0ohei4htscbku4d.mdb.yandexcloud.net:9091','rc1d-tfupvefodh1d8p2d.mdb.yandexcloud.net:9091','rc1d-uqekgkq34ju68r89.mdb.yandexcloud.net:9091'],
+        bootstrap_servers=['rc1a-dk42rnqoo40c1r3g.mdb.yandexcloud.net:9091','rc1b-t0sdgm6tdlnpgfj0.mdb.yandexcloud.net:9091','rc1d-eeq8sn9dlcvd3s86.mdb.yandexcloud.net:9091'],
         security_protocol="SASL_SSL",
         sasl_mechanism="SCRAM-SHA-512",
         sasl_plain_username='read',
