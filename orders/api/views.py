@@ -6,13 +6,13 @@ from cart.cart import Cart
 from orders.api.serializers import OrderSerializer
 from orders.models import Order, OrderItem
 from users.currentUser import CurrentUser
-from users.serializers import UserSerializer
 
 
 class OrderCreateView(APIView):
     def post(self, request):
         cart = Cart(request)
-        request.data["user"] = CurrentUser.get_current_user(request).id
+        current_user = CurrentUser(request)
+        request.data["user"] = current_user.get().id
         request.data["total_cost"] = cart.get_total_price()
         serializer = OrderSerializer(data=request.data)
         if serializer.is_valid():
@@ -34,12 +34,13 @@ class OrderCreateView(APIView):
 class UserOrdersView(APIView):
     def get(self, request):
         orders = Order.objects.all()
-        current_user = CurrentUser.get_current_user(request)
-        if current_user is None:
+        current_user = CurrentUser(request)
+        user = current_user.get()
+        if user is None:
             return Response({'answer': 'пользователь не залогинен'}, status=status.HTTP_401_UNAUTHORIZED, headers={"charset": "utf-8"})
         orders_out = []
         for order in orders:
-            if order.user.id == current_user.id:
+            if order.user.id == user.id:
                 orders_out.append(order)
         serializer = OrderSerializer(orders_out, many=True)
         return Response(serializer.data)
