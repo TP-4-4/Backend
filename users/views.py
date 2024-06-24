@@ -3,13 +3,14 @@ from rest_framework import status, generics
 from rest_framework.generics import CreateAPIView
 from rest_framework.response import Response
 from geopy.geocoders import Nominatim
+from rest_framework.views import APIView
 
 from .currentUser import CurrentUser
 from .models import User
 from .serializers import UserSignUpSerializer, UserLoginSerializer, UserSerializer, UserAddressSerializer
 
 
-class RegistrationView(CreateAPIView):
+class RegistrationView(APIView):
     # permission_classes = [AllowAny]
     def post(self, request):
         serializer = UserSignUpSerializer(data=request.data)
@@ -43,9 +44,10 @@ def invalid_address(address):
 #     queryset = User.objects.all()
 #     serializer_class = UserSerializer
 
-class GetUserView(CreateAPIView):
+class GetUserView(APIView):
     def get(self, request):
-        user = CurrentUser.get_current_user(request)
+        current_user = CurrentUser(request)
+        user = current_user.get()
         if user:
             return Response(UserSerializer(user).data, status=status.HTTP_200_OK)
         return Response({'answer': 'пользователь не найден'}, status=status.HTTP_401_UNAUTHORIZED, headers={"charset": "utf-8"})
@@ -67,10 +69,11 @@ class GetUserView(CreateAPIView):
 #         return Response({'answer': 'пользователь не найден'}, status=status.HTTP_401_UNAUTHORIZED, headers={"charset": "utf-8"})
 
 
-class ChangeUserAddressView(CreateAPIView):
+class ChangeUserAddressView(APIView):
     def post(self, request):
         serializer = UserAddressSerializer(data=request.data)
-        user = CurrentUser.get_current_user(request)
+        current_user = CurrentUser(request)
+        user = current_user.get()
         if not user:
             return Response({'answer': 'пользователь не залогинен'}, status=status.HTTP_401_UNAUTHORIZED, headers={"charset": "utf-8"})
         if serializer.is_valid():
@@ -81,7 +84,7 @@ class ChangeUserAddressView(CreateAPIView):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
-class LoginView(CreateAPIView):
+class LoginView(APIView):
     def post(self, request):
         serializer = UserLoginSerializer(data=request.data)
         if serializer.is_valid():
@@ -90,7 +93,15 @@ class LoginView(CreateAPIView):
             for user in User.objects.all():
                 if (password == user.password) and (email == user.email):
                     response = Response(UserSerializer(user).data, status=status.HTTP_200_OK)
-                    CurrentUser.set_current_user(request, user)
+                    current_user = CurrentUser(request)
+                    current_user.set(user)
                     return response
             return Response({'answer': 'почта/пароль неправильный'}, status=status.HTTP_401_UNAUTHORIZED, headers={"charset": "utf-8"})
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+class LogoutView(APIView):
+    def post(self, request):
+        current_user = CurrentUser(request)
+        current_user.remove()
+        return Response(None, status=status.HTTP_200_OK)
