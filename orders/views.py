@@ -5,18 +5,18 @@ from cart.cart import Cart
 
 
 def order_create(request):
-    cart = Cart(request)
+    cart = Cart.get_current_cart(request)
     if request.method == 'POST':
         form = OrderCreateForm(request.POST)
         if form.is_valid():
             order = form.save()
-            for item in cart:
+            for item in cart.values():
                 OrderItem.objects.create(order=order,
                                          product=item['product'],
                                          price=item['price'],
                                          quantity=item['quantity'])
             # clear the cart
-            cart.clear()
+            Cart.clear(request)
 
             return render(request,
                           'orders/order/created.html',

@@ -4,54 +4,64 @@ from shop.models import Product
 
 
 class Cart:
-    def __init__(self, request):
-        self.session = request.session
-        cart = self.session.get(settings.CART_SESSION_ID)
+    @staticmethod
+    def create_if_empty(request):
+        print("INVOKE CART")
+        cart = request.session.get(settings.CART_SESSION_ID)
         if not cart:
-            cart = self.session[settings.CART_SESSION_ID] = {}
-        self.cart = cart
+            print("NEW SESSION, EMPTY CART")
+            request.session[settings.CART_SESSION_ID] = {}
 
-    def add(self, product, quantity=1, override_quantity=False):
+    @staticmethod
+    def add(request, product, quantity=1, override_quantity=False):
+        Cart.create_if_empty(request)
+        cart = request.session.get(settings.CART_SESSION_ID)
         product_id = str(product.id)
-        if product_id not in self.cart:
-            self.cart[product_id] = {'quantity': 0,
-                                     'price': str(product.price)}
+        if product_id not in cart:
+            cart[product_id] = {'quantity': 0, 'price': str(product.price)}
         if override_quantity:
-            self.cart[product_id]['quantity'] = quantity
+            cart[product_id]['quantity'] = quantity
         else:
-            self.cart[product_id]['quantity'] += quantity
-        self.save()
+            cart[product_id]['quantity'] += quantity
+        request.session.modified = True
 
-
-    def save(self):
-        # mark the session as "modified" to make sure it gets saved
-        self.session.modified = True
-
-    def remove(self, product):
+    @staticmethod
+    def remove(request, product):
+        Cart.create_if_empty(request)
+        cart = request.session.get(settings.CART_SESSION_ID)
         product_id = str(product.id)
-        if product_id in self.cart:
-            del self.cart[product_id]
-            self.save()
+        if product_id in cart:
+            del cart[product_id]
+            request.session.modified = True
 
-    def __iter__(self):
-        product_ids = self.cart.keys()
-        # get the product objects and add them to the cart
+    @staticmethod
+    def get_current_cart(request):
+        Cart.create_if_empty(request)
+        cart = request.session.get(settings.CART_SESSION_ID)
+        product_ids = cart.keys()
         products = Product.objects.filter(id__in=product_ids)
-        cart = self.cart.copy()
+        cart_to_display = cart.copy()
         for product in products:
-            cart[str(product.id)]['product'] = product
-        for item in cart.values():
+            cart_to_display[str(product.id)]['product'] = product
+        for item in cart_to_display.values():
             item['price'] = Decimal(item['price'])
             item['total_price'] = item['price'] * item['quantity']
-            yield item
+        return cart_to_display
 
-    def __len__(self):
-        return sum(item['quantity'] for item in self.cart.values())
+    @staticmethod
+    def get_total_quantity(request):
+        Cart.create_if_empty(request)
+        cart = request.session.get(settings.CART_SESSION_ID)
+        return sum(item['quantity'] for item in cart.values())
 
-    def get_total_price(self):
-        return sum(Decimal(item['price']) * item['quantity'] for item in self.cart.values())
+    @staticmethod
+    def get_total_price(request):
+        Cart.create_if_empty(request)
+        cart = request.session.get(settings.CART_SESSION_ID)
+        return sum(Decimal(item['price']) * item['quantity'] for item in cart.values())
 
-    def clear(self):
-    # remove cart from session
-        del self.session[settings.CART_SESSION_ID]
-        self.save()
+    @staticmethod
+    def clear(request):
+        Cart.create_if_empty(request)
+        del request.session[settings.CART_SESSION_ID]
+        request.session.modified = True

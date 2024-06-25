@@ -46,8 +46,7 @@ def invalid_address(address):
 
 class GetUserView(APIView):
     def get(self, request):
-        current_user = CurrentUser(request)
-        user = current_user.get()
+        user = CurrentUser.get(request)
         if user:
             return Response(UserSerializer(user).data, status=status.HTTP_200_OK)
         return Response({'answer': 'пользователь не найден'}, status=status.HTTP_401_UNAUTHORIZED, headers={"charset": "utf-8"})
@@ -72,8 +71,7 @@ class GetUserView(APIView):
 class ChangeUserAddressView(APIView):
     def post(self, request):
         serializer = UserAddressSerializer(data=request.data)
-        current_user = CurrentUser(request)
-        user = current_user.get()
+        user = CurrentUser.get(request)
         if not user:
             return Response({'answer': 'пользователь не залогинен'}, status=status.HTTP_401_UNAUTHORIZED, headers={"charset": "utf-8"})
         if serializer.is_valid():
@@ -92,16 +90,13 @@ class LoginView(APIView):
             password = serializer.validated_data.get('password')
             for user in User.objects.all():
                 if (password == user.password) and (email == user.email):
-                    response = Response(UserSerializer(user).data, status=status.HTTP_200_OK)
-                    current_user = CurrentUser(request)
-                    current_user.set(user)
-                    return response
+                    CurrentUser.set(request, user)
+                    return Response(UserSerializer(user).data, status=status.HTTP_200_OK)
             return Response({'answer': 'почта/пароль неправильный'}, status=status.HTTP_401_UNAUTHORIZED, headers={"charset": "utf-8"})
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
 class LogoutView(APIView):
     def post(self, request):
-        current_user = CurrentUser(request)
-        current_user.remove()
+        CurrentUser.remove(request)
         return Response(None, status=status.HTTP_200_OK)
