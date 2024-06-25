@@ -10,19 +10,21 @@ from users.currentUser import CurrentUser
 
 class OrderCreateView(APIView):
     def post(self, request):
-        cart = Cart(request)
-        current_user = CurrentUser(request)
-        request.data["user"] = current_user.get().id
-        request.data["total_cost"] = cart.get_total_price()
+        user = CurrentUser.get(request)
+        if user is None:
+            return Response({'answer': 'пользователь не залогинен'}, status=status.HTTP_401_UNAUTHORIZED, headers={"charset": "utf-8"})
+        request.data["user"] = user.id
+        request.data["total_cost"] = Cart.get_total_price(request)
         serializer = OrderSerializer(data=request.data)
         if serializer.is_valid():
             order = serializer.save()
-            for item in cart:
+            cart = Cart.get_current_cart(request)
+            for item in cart.values():
                 OrderItem.objects.create(order=order,
                                          product=item['product'],
                                          price=item['price'],
                                          quantity=item['quantity'])
-            cart.clear()
+            Cart.clear(request)
 
             response = Response({"answer": 'order сделан ' + str(order.id)})
             response.headers = {"charset": "utf-8"}
@@ -34,8 +36,7 @@ class OrderCreateView(APIView):
 class UserOrdersView(APIView):
     def get(self, request):
         orders = Order.objects.all()
-        current_user = CurrentUser(request)
-        user = current_user.get()
+        user = CurrentUser.get(request)
         if user is None:
             return Response({'answer': 'пользователь не залогинен'}, status=status.HTTP_401_UNAUTHORIZED, headers={"charset": "utf-8"})
         orders_out = []
